@@ -1,0 +1,68 @@
+import numpy as np
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.svm import SVC
+from sklearn.naive_bayes import GaussianNB
+from sklearn.metrics import accuracy_score
+import matplotlib.pyplot as plt
+
+# Load your dataset (Replace 'your_dataset.csv' with the actual dataset file)
+data = pd.read_csv('/content/melanoma.csv')
+
+# Extract features and target
+X = data[['age', 'sex', 'target']].values  # You can include more features as needed
+y = data['diagnosis'].values
+
+# Initialize SVM and Naive Bayes classifiers
+svm_classifier = SVC(kernel='linear')
+naive_bayes_classifier = GaussianNB()
+
+# Set the number of iterations
+num_iterations = 11
+svm_accuracies = []
+naive_bayes_accuracies = []
+
+# Run the loop for 11 iterations
+for i in range(num_iterations):
+    # Split the data into training and testing sets
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=i)
+
+    # Train the classifiers
+    svm_classifier.fit(X_train, y_train)
+    naive_bayes_classifier.fit(X_train, y_train)
+
+    # Make predictions
+    svm_predictions = svm_classifier.predict(X_test)
+    naive_bayes_predictions = naive_bayes_classifier.predict(X_test)
+
+    # Calculate accuracies
+    svm_accuracy = accuracy_score(y_test, svm_predictions)
+    naive_bayes_accuracy = accuracy_score(y_test, naive_bayes_predictions)
+
+    # Append accuracies to the lists
+    svm_accuracies.append(svm_accuracy)
+    naive_bayes_accuracies.append(naive_bayes_accuracy)
+
+    # Print accuracy for each iteration
+    print(f"Iteration {i + 1} - SVM Accuracy: {svm_accuracy * 100:.2f}%, Naive Bayes Accuracy: {naive_bayes_accuracy * 100:.2f}%")
+
+# Plot the accuracies
+labels = ['SVM', 'Naive Bayes']
+avg_svm_accuracy = np.mean(svm_accuracies)
+avg_naive_bayes_accuracy = np.mean(naive_bayes_accuracies)
+accuracies = [avg_svm_accuracy, avg_naive_bayes_accuracy]
+
+plt.bar(labels, accuracies)
+plt.xlabel('Classifier')
+plt.ylabel('Average Accuracy')
+plt.title(f'Comparison of SVM and Naive Bayes over {num_iterations} iterations')
+plt.show()
+
+if avg_svm_accuracy > avg_naive_bayes_accuracy:
+    print(f"\nAverage SVM accuracy over {num_iterations} iterations: {avg_svm_accuracy * 100:.2f}%")
+    print(f"Average Naive Bayes accuracy over {num_iterations} iterations: {avg_naive_bayes_accuracy * 100:.2f}%")
+    print("SVM has a higher average accuracy.")
+else:
+    print(f"\nAverage SVM accuracy over {num_iterations} iterations: {avg_svm_accuracy * 100:.2f}%")
+    print(f"Average Naive Bayes accuracy over {num_iterations} iterations: {avg_naive_bayes_accuracy * 100:.2f}%")
+    print("Naive Bayes has a higher average accuracy.")
